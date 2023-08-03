@@ -9,10 +9,29 @@ function Inicio() {
 function Eventos() {
     ROUTER.addEventListener("ionRouteDidChange", Navegar); // ionRouteDidChange es un evento que se dispara cuando se cambia de ruta
     dqs("btnRegistrar").addEventListener("click", TomarDatosRegistro);
-    /*  dqs("btnLogin").addEventListener("click", TomarDatosLogin); */
+    dqs("btnLogin").addEventListener("click", TomarDatosLogin);
+    DEPARTAMENTO.addEventListener("ionChange", ObtenerCiudades);
+    FECHANAC.addEventListener("ionChange", ObtenerCiudades);
+    dqs("fechaNac").addEventListener('ionChange', verFecha);
+    dqs("btnAgregarPersona").addEventListener("click", AgregarPersona);
 
 }
 
+function verFecha(ev) {
+    let nacimiento = new Date(ev.detail.value);
+    ObtenerOcupaciones(EsMayor(nacimiento))
+
+}
+
+
+function EsMayor(fNacimiento) {
+    let fnacSumado18 = fNacimiento.setFullYear(fNacimiento.getFullYear() + 18);
+    let hoy = new Date();
+    if (hoy < fnacSumado18) {
+        return false;
+    }
+    return true;
+}
 
 
 function TomarDatosRegistro() {
@@ -24,17 +43,33 @@ function TomarDatosRegistro() {
         Registro(u);
 
     } else {
-        alert("Faltan datos"); // Esto hay que cambiarlo por un cartelito de ionic
+        Alertar("Error", "Advertencia", "Faltan datos");
+    }
+
+}
+
+
+function TomarDatosLogin() {
+
+    let nom = dqs("logEmail").value;
+
+    let pas = dqs("logPassword").value;
+    if (nom != "" && pas != "") {
+
+        let u = new Usuario(nom, pas);
+        Login(u)
+    } else {
+        Alertar("ERROR", "Advertencia", "Falta algun dato")
     }
 
 }
 
 
 function ArmarMenu() {
-    let hayToken = localStorage.getItem("apikey");
+    let hayToken = localStorage.getItem("token");
     let cadena = `<ion-item onclick="cerrarMenu()" href="/">Home</ion-item>`;
     if (hayToken) {
-        cadena += `<ion-item onclick="cerrarMenu()" href="/personaAgregar">Personas</ion-item>
+        cadena += `<ion-item onclick="cerrarMenu()" href="/personaAgregar">Agregar Personas</ion-item>
         <ion-item onclick="Logout()" >Logout</ion-item>`;
     } else {
         cadena += ` <ion-item onclick="cerrarMenu()" href="/login">Login</ion-item>
@@ -66,29 +101,162 @@ function Navegar(evt) {
         REGISTRO.style.display = "block";
     } else if (RUTA == "/personaAgregar") {
         AGREGARP.style.display = "block";
+        ListarDepartamentos();
     }
 }
 
 
-/* Hay que ver bien esto. */
+function AgregarPersona() {
+    let p = new Object();
+
+    p.idUsuario = localStorage.getItem("id");
+    p.nombre = dqs("nombre").value;
+    p.departamento = dqs("departamentos").value;
+    p.ciudad = dqs("ciudades").value;
+    p.fechaNacimiento = dqs("fechaNac").value;
+    p.ocupacion = dqs("ocupacion").value;
+
+    fetch(`${URLBASE}personas.php`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': localStorage.getItem("token"),
+            'iduser': localStorage.getItem("id")
+        },
+        body: JSON.stringify(p),
+    })
+
+        .then(function (response) {
+            return response.json();
+        }).then(function (data) {
+            console.log(data);
+            alert("Persona agregada");
+        })
+}
+
 function ListarDepartamentos() {
 
-    fetch(`${URLBASE} departamentos.php`)
+    presentLoading();
+    fetch(`${URLBASE}departamentos.php`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': localStorage.getItem("token"),
+            'iduser': localStorage.getItem("id")
+        },
+    })
         .then(function (response) {
             return response.json();
         })
         .then(function (data) {
-            for (let p of data) {
-                let currencies = p.currencies
-                for (let codigoMoneda in currencies) {
-                    document.querySelector("#pais1").innerHTML += `< option value = "${codigoMoneda}" > ${p.name.common}</option > `
-                    document.querySelector("#pais2").innerHTML += `< option value = "${codigoMoneda}" > ${p.name.common}</option > `
+            if (data.codigo == 200) {
+                for (let p of data.departamentos) {
+                    console.log(data);
+                    dqs("departamentos").innerHTML += `<ion-select-option value="${p.id}">${p.nombre}</ion-select-option>`;
+                }
+            } else {
+                console.log(data);
+                Alertar("Error", "Advertencia", data.mensaje)
+            }
+            loading.dismiss();
+        })
+}
+
+function ObtenerCiudades(id) {
+    dqs("ciudades").innerHTML = "";
+    presentLoading();
+
+    fetch(`${URLBASE}ciudades.php?idDepartamento=${id.detail.value}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': localStorage.getItem("token"),
+            'iduser': localStorage.getItem("id")
+        },
+    })
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+
+            if (data.codigo == 200) {
+                for (let p of data.ciudades) {
+                    dqs("ciudades").innerHTML += `<ion-select-option value="${p.id}">${p.nombre}</ion-select-option>`;
+                }
+            } else {
+                Alertar("Error", "Advertencia", data.mensaje)
+            }
+            loading.dismiss();
+        })
+}
+
+
+function ObtenerOcupaciones(mayor) {
+    dqs("ocupaciones").innerHTML = "";
+    presentLoading();
+    fetch(`${URLBASE}ocupaciones.php`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': localStorage.getItem("token"),
+            'iduser': localStorage.getItem("id")
+        },
+    })
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+            console.log(data);
+            if (data.codigo = 200) {
+                for (let p of data.ocupaciones) {
+
+
+                    if (mayor) {
+                        dqs("ocupaciones").innerHTML += `<ion-select-option value="${p.id}">${p.ocupacion}</ion-select-option>`;
+                    } else {
+                        if (p.id == 5) {
+                            dqs("ocupaciones").innerHTML = `<ion-select-option value="${p.id}">${p.ocupacion}</ion-select-option>`;
+                            break;
+                        }
+
+                    }
 
                 }
-
+            } else {
+                Alertar("Error", "Advertencia", data.mensaje)
             }
         })
 
+}
+
+function Login(u) {
+    presentLoading();
+    fetch(`${URLBASE}login.php`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(u)
+    })
+        .then(function (response) {
+            console.log(response);
+            return response.json();
+        })
+        .then(function (data) {
+
+            if (data.codigo == 200) {
+                localStorage.setItem("token", data.apiKey)
+                localStorage.setItem("id", data.id)
+                NAV.push("page-home")
+                ArmarMenu();
+                loading.dismiss();
+            } else {
+                alert("datos incorrectos")
+            }
+            console.log(data);
+        }).catch(function (codigo) {
+            console.log(codigo);
+        })
 }
 
 
@@ -111,15 +279,6 @@ function OcultarPantallas() {
 function dqs(id) {
     return document.querySelector("#" + id);
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -147,18 +306,14 @@ function Registro(u) {
         })
 }
 
-function Login() {
-
-    let datosLogin = new Object();
-    datosLogin.usuario = "censo85";
-    datosLogin.password = "censo85";
-
-    fetch(`${URLBASE} login.php`, {
+function Login(u) {
+    presentLoading();
+    fetch(`${URLBASE}login.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(datosLogin)
+        body: JSON.stringify(u)
     })
         .then(function (response) {
             console.log(response);
@@ -169,45 +324,12 @@ function Login() {
             if (data.codigo == 200) {
                 localStorage.setItem("token", data.apiKey)
                 localStorage.setItem("id", data.id)
+                NAV.push("page-home")
+                ArmarMenu();
+                loading.dismiss();
             } else {
                 alert("datos incorrectos")
             }
-            console.log(data);
-        }).catch(function (codigo) {
-            console.log(codigo);
-        })
-}
-
-
-function AgregarPersona() {
-
-    let datosPersona = new Object();
-    datosPersona.idUsuario = localStorage.getItem("id")
-    datosPersona.nombre = "Persona 1"
-    datosPersona.departamento = 3205; /*Por lo que se ve la api no valida nada. Si yo le mando el departamento vacio, o no le mando nada, me devuelve 300*/
-    datosPersona.ciudad = 129777
-    datosPersona.fechaNacimiento = "2002-09-25"
-    datosPersona.ocupacion = 3
-
-    fetch(`${URLBASE} personas.php`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'apikey': localStorage.getItem("token"),
-            'iduser': localStorage.getItem("id")
-        },
-        body: JSON.stringify(datosPersona)
-    })
-        .then(function (response) {
-            console.log(response);
-            return response.json();
-        })
-        .then(function (data) {
-
-            /*            if (data.codigo == 200) {
-                           console.log(data);
-                       } else {
-                       } */
             console.log(data);
         }).catch(function (codigo) {
             console.log(codigo);
