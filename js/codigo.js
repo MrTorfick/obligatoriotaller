@@ -92,31 +92,39 @@ function Navegar(evt) {
 }
 
 function AgregarPersona() {
-  let p = new Object();
+  let p = new Persona();
 
   p.idUsuario = localStorage.getItem("id");
-  p.nombre = dqs("nombre").value;
+  p.nombre = dqs("perNombre").value;
   p.departamento = dqs("departamentos").value;
   p.ciudad = dqs("ciudades").value;
   p.fechaNacimiento = dqs("fechaNac").value;
-  p.ocupacion = dqs("ocupacion").value;
+  p.ocupacion = dqs("ocupaciones").value;
 
-  fetch(`${URLBASE}personas.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: localStorage.getItem("token"),
-      iduser: localStorage.getItem("id"),
-    },
-    body: JSON.stringify(p),
-  })
-    .then(function (response) {
-      return response.json();
+  if (ValidarPersona(p)) {
+    fetch(`${URLBASE}personas.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: localStorage.getItem("token"),
+        iduser: localStorage.getItem("id"),
+      },
+      body: JSON.stringify(p),
     })
-    .then(function (data) {
-      console.log(data);
-      alert("Persona agregada");
-    });
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        console.log(data);
+        if (data.codigo == 200) {
+          Alertar("Exito", "Aviso", data.mensaje);
+        } else {
+          Alertar("Error", "Advertencia", data.mensaje);
+        }
+      });
+  }
+
+
 }
 
 function ListarDepartamentos() {
@@ -281,6 +289,16 @@ function Registro(u) {
         Alertar("Error", "Advertencia", data.mensaje);
       }
     });
+}
+
+function ValidarPersona(p) {
+
+  if (p.idUsuario == "" || p.nombre == "" || p.departamento == "" || p.ciudad == "" || p.fechaNacimiento == "" || p.ocupacion == "") {
+    Alertar("Error", "Advertencia", "Verifique los datos ingresados");
+    return false;
+  }
+  return true;
+
 }
 
 function Login(u) {

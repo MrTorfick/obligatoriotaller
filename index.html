@@ -134,22 +134,18 @@
                         <ion-input label="Nombre" id="perNombre" labelPlacement="floating"></ion-input>
                     </ion-item>
 
-                    <ion-list>
-                        <ion-item>
-                            <ion-select aria-label="Departamentos" interface="action-sheet"
-                                placeholder="Seleccione un departamento" id="departamentos" cancel-text="Cerrar">
-                            </ion-select>
-                        </ion-item>
-                    </ion-list>
 
-                    <ion-list>
-                        <ion-item>
-                            <ion-select aria-label="Ciudad" interface="action-sheet" placeholder="Seleccione una ciudad"
-                                id="ciudades" cancel-text="Cerrar">
-                            </ion-select>
-                        </ion-item>
-                    </ion-list>
+                    <ion-item>
+                        <ion-select aria-label="Departamentos" interface="action-sheet"
+                            placeholder="Seleccione un departamento" id="departamentos" cancel-text="Cerrar">
+                        </ion-select>
+                    </ion-item>
 
+                    <ion-item>
+                        <ion-select aria-label="Ciudad" interface="action-sheet" placeholder="Seleccione una ciudad"
+                            id="ciudades" cancel-text="Cerrar">
+                        </ion-select>
+                    </ion-item>
 
                     <ion-item>
                         <ion-datetime presentation="date" id="fechaNac">
@@ -157,29 +153,25 @@
                         </ion-datetime>
                     </ion-item>
 
+                    <ion-item>
+                        <ion-select aria-label="Ocupacion" interface="action-sheet"
+                            placeholder="Seleccione una ocupacion" id="ocupaciones" cancel-text="Cerrar">
+                        </ion-select>
+                    </ion-item>
 
+                    <ion-button expand="full" id="btnAgregarPersona">Agregar Persona</ion-button>
 
-
-
-                    <ion-list>
-                        <ion-item>
-                            <ion-select aria-label="Ocupacion" interface="action-sheet"
-                                placeholder="Seleccione una ocupacion" id="ocupaciones" cancel-text="Cerrar">
-                            </ion-select>
-                        </ion-item>
-                    </ion-list>
-
-                    <ion-button expand="block" id="btnAgregarPersona">Agregar Persona</ion-button>
+                    <p>⠀</p><!-- Se agrega un p con texto invisible para que se pueda ver el boton -->
+                </ion-list>
 
             </ion-content>
         </page-persona-agregar>
+
+
     </ion-app>
 
-
-
-
-    <script src="estructura.js"></script>
-    <script src="codigo.js"></script>
+    <script src="js/estructura.js"></script>
+    <script src="js/codigo.js"></script>
 
 </body>
 
