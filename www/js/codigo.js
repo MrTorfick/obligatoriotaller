@@ -48,6 +48,7 @@ function TomarDatosLogin() {
   if (nom != "" && pas != "") {
     let u = new Usuario(nom, pas);
     Login(u);
+    console.log(u);
   } else {
     Alertar("ERROR", "Advertencia", "Falta algun dato");
   }
@@ -243,7 +244,8 @@ function Login(u) {
         ArmarMenu();
         loading.dismiss();
       } else {
-        alert("datos incorrectos");
+        loading.dismiss();
+        Alertar("Error", "", data.mensaje);
       }
       console.log(data);
     })
@@ -301,36 +303,6 @@ function ValidarPersona(p) {
 
 }
 
-function Login(u) {
-  presentLoading();
-  fetch(`${URLBASE}login.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(u),
-  })
-    .then(function (response) {
-      console.log(response);
-      return response.json();
-    })
-    .then(function (data) {
-      if (data.codigo == 200) {
-        localStorage.setItem("token", data.apiKey);
-        localStorage.setItem("id", data.id);
-        NAV.push("page-home");
-        ArmarMenu();
-        loading.dismiss();
-      } else {
-        alert("datos incorrectos");
-      }
-      console.log(data);
-    })
-    .catch(function (codigo) {
-      console.log(codigo);
-    });
-}
-
 const loading = document.createElement("ion-loading");
 function presentLoading() {
   loading.cssClass = "my-custom-class";
@@ -346,7 +318,7 @@ function Alertar(header, subheader, message) {
   alert.header = header;
   alert.subHeader = subheader;
   alert.message = message;
-  alert.buttons = ["OK"];
+  alert.buttons = ["Aceptar"];
 
   document.body.appendChild(alert);
   alert.present();
