@@ -1,3 +1,10 @@
+/* PENDIENTE: 
+-Queda crear la funcion de EliminarPersona.
+-Luego de hacer el EliminarPersonas, en la misma page de la tabla, hay que hacer un filtro que filtre por ocupacion.*/
+/* Hay que ver que hacer con al funcion de ObtenerOcupaciones */
+
+
+
 Inicio();
 
 function Inicio() {
@@ -119,12 +126,65 @@ function AgregarPersona() {
         console.log(data);
         if (data.codigo == 200) {
           Alertar("Exito", "Aviso", data.mensaje);
+          /* Habria que limpiar los elementos del HTML */
         } else {
           Alertar("Error", "Advertencia", data.mensaje);
         }
       });
   }
 
+
+}
+
+
+
+
+function GetPersonas() {
+
+  fetch(`${URLBASE}personas.php?idUsuario=${localStorage.getItem("id")}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: localStorage.getItem("token"),
+      iduser: localStorage.getItem("id"),
+    },
+  })
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log(data);
+      if (data.personas.length > 0) {
+        for (let p of data.personas) {
+
+          dqs("listarPersonas").innerHTML += `<ion-col style="background-color:teal">${p.nombre}</ion-col>
+          <ion-col style="background-color:teal">${p.fechaNacimiento}</ion-col>
+          <ion-col style="background-color:teal">${p.ocupacion}</ion-col>
+          <ion-col style="background-color: transparent">
+          <ion-button color="warning" onclick="EliminarPersona(${p.id})">Eliminar</ion-button>
+          </ion-col>
+          `;
+        }
+      }
+    })
+
+}
+
+
+
+function ObtenerOcupaciones(mayor) {
+  //TODO: Obtener las ocupaciones de la API 
+  fetch(`${URLBASE}ocupaciones.php`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: localStorage.getItem("token"),
+      iduser: localStorage.getItem("id"),
+    },
+  })
+    .then(function (response) {
+      return response.json();
+    })
 
 }
 
@@ -147,7 +207,7 @@ function ListarDepartamentos() {
           console.log(data);
           dqs(
             "departamentos"
-          ).innerHTML += `<ion-select-option value="${p.id}">${p.nombre}</ion-select-option>`;
+          ).innerHTML += `<ion-select-option value = "${p.id}">${p.nombre}</ion-select-option>`;
         }
       } else {
         console.log(data);
@@ -177,7 +237,7 @@ function ObtenerCiudades(id) {
         for (let p of data.ciudades) {
           dqs(
             "ciudades"
-          ).innerHTML += `<ion-select-option value="${p.id}">${p.nombre}</ion-select-option>`;
+          ).innerHTML += `<ion-select-option value = "${p.id}"> ${p.nombre}</ion -select-option>`;
         }
       } else {
         Alertar("Error", "Advertencia", data.mensaje);
@@ -207,12 +267,12 @@ function ObtenerOcupaciones(mayor) {
           if (mayor) {
             dqs(
               "ocupaciones"
-            ).innerHTML += `<ion-select-option value="${p.id}">${p.ocupacion}</ion-select-option>`;
+            ).innerHTML += `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
           } else {
             if (p.id == 5) {
               dqs(
                 "ocupaciones"
-              ).innerHTML = `<ion-select-option value="${p.id}">${p.ocupacion}</ion-select-option>`;
+              ).innerHTML = `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
               break;
             }
           }

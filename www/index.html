@@ -8,6 +8,17 @@
     <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+
+
+    <style>
+        ion-col {
+            background-color: #135d54;
+            border: solid 1px #fff;
+            color: #fff;
+            text-align: center;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -58,6 +69,10 @@
             </ion-header>
             <ion-content>
                 Pantalla de home
+
+
+
+
             </ion-content>
         </page-home>
 
@@ -166,6 +181,35 @@
 
             </ion-content>
         </page-persona-agregar>
+
+
+
+        <page-persona-listar class="ion-page" id="pantalla-persona-listar">
+            <ion-header>
+                <ion-toolbar>
+                    <ion-buttons slot="start">
+                        <ion-menu-button></ion-menu-button>
+                    </ion-buttons>
+                    <iont-title>Listado de personas censadas</iont-title>
+                </ion-toolbar>
+            </ion-header>
+            <ion-content>
+                <ion-list>
+                    <ion-grid>
+                        <ion-row>
+                            <ion-col><strong>Nombre</strong></ion-col>
+                            <ion-col><strong>Fecha de nacimiento</strong></ion-col>
+                            <ion-col><strong>Ocupacion</strong></ion-col>
+                            <ion-col style="background-color:#FFC409;"><strong>Eliminar</strong></ion-col>
+
+                            <!-- Crea una etiqueta html cualquiera, y aplicale un estilo css directamente escribiendolo dentro de la etiqueta html -->
+
+                        </ion-row>
+                        <ion-row id="listarPersonas">
+                        </ion-row>
+                    </ion-grid>
+                </ion-list>
+            </ion-content>
 
 
     </ion-app>
