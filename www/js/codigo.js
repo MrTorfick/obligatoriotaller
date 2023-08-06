@@ -3,8 +3,6 @@
 -Luego de hacer el EliminarPersonas, en la misma page de la tabla, hay que hacer un filtro que filtre por ocupacion.*/
 /* Hay que ver que hacer con al funcion de ObtenerOcupaciones */
 
-
-
 Inicio();
 
 function Inicio() {
@@ -66,7 +64,8 @@ function ArmarMenu() {
   let cadena = `<ion-item onclick="cerrarMenu()" href="/">Home</ion-item>`;
   if (hayToken) {
     cadena += `<ion-item onclick="cerrarMenu()" href="/personaAgregar">Agregar Personas</ion-item>
-        <ion-item onclick="Logout()" >Logout</ion-item>`;
+        <ion-item onclick="Logout()">Logout</ion-item>
+        <ion-item href="/personaListar">Personas censadas</ion-item>`;
   } else {
     cadena += ` <ion-item onclick="cerrarMenu()" href="/login">Login</ion-item>
                 <ion-item onclick="cerrarMenu()" href="/registro">Registrar</ion-item>
@@ -96,6 +95,10 @@ function Navegar(evt) {
   } else if (RUTA == "/personaAgregar") {
     AGREGARP.style.display = "block";
     ListarDepartamentos();
+  } else if (RUTA == "/personaListar") {
+    LISTARP.style.display = "block";
+    GetPersonas();
+
   }
 }
 
@@ -141,6 +144,7 @@ function AgregarPersona() {
 
 function GetPersonas() {
 
+  dqs("listarPersonas").innerHTML = "";
   fetch(`${URLBASE}personas.php?idUsuario=${localStorage.getItem("id")}`, {
     method: "GET",
     headers: {
@@ -157,12 +161,15 @@ function GetPersonas() {
       if (data.personas.length > 0) {
         for (let p of data.personas) {
 
-          dqs("listarPersonas").innerHTML += `<ion-col style="background-color:teal">${p.nombre}</ion-col>
+          dqs("listarPersonas").innerHTML += `
+          <ion-row>
+          <ion-col style="background-color:teal">${p.nombre}</ion-col>
           <ion-col style="background-color:teal">${p.fechaNacimiento}</ion-col>
           <ion-col style="background-color:teal">${p.ocupacion}</ion-col>
           <ion-col style="background-color: transparent">
           <ion-button color="warning" onclick="EliminarPersona(${p.id})">Eliminar</ion-button>
           </ion-col>
+          <ion-row>
           `;
         }
       }
@@ -323,6 +330,7 @@ function OcultarPantallas() {
   LOGIN.style.display = "none";
   REGISTRO.style.display = "none";
   AGREGARP.style.display = "none";
+  LISTARP.style.display = "none";
 }
 
 function dqs(id) {

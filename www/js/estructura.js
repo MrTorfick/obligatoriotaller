@@ -5,6 +5,7 @@ const HOME = document.querySelector("#pantalla-home");
 const LOGIN = document.querySelector("#pantalla-login");
 const REGISTRO = document.querySelector("#pantalla-registro");
 const AGREGARP = document.querySelector("#pantalla-persona-agregar");
+const LISTARP = document.querySelector("#pantalla-persona-listar");
 const DEPARTAMENTO = document.querySelector("#departamentos");
 const FECHANAC = document.querySelector("#fechaNac");
 
