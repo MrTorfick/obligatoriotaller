@@ -196,8 +196,8 @@
 
                 <ion-toolbar>
                     <ion-item>
-                        <ion-select aria-label="Ocupacion" interface="action-sheet"
-                            placeholder="Buscar por ocupacion" id="buscarOcupaciones" cancel-text="Cerrar">
+                        <ion-select aria-label="Ocupacion" interface="action-sheet" placeholder="Buscar por ocupacion"
+                            id="buscarOcupaciones" cancel-text="Cerrar">
                         </ion-select>
                     </ion-item>
                 </ion-toolbar>
@@ -221,6 +221,34 @@
                     </ion-grid>
                 </ion-list>
             </ion-content>
+        </page-persona-listar>
+
+
+        <page-total-censados>
+
+            <ion-header>
+                <ion-toolbar>
+                    <ion-buttons slot="start">
+                        <ion-menu-button></ion-menu-button>
+                    </ion-buttons>
+                    <iont-title>Censados totales</iont-title>
+                </ion-toolbar>
+            </ion-header>
+
+            <ion-content>
+                <ion-list>
+                    <ion-grid>
+                        <ion-row>
+                            <ion-col><strong id="colUser">Censados por</strong></ion-col>
+                            <ion-col><strong>Total censados en Montevideo</strong></ion-col>
+                            <ion-col><strong>Total censados resto del pais</strong></ion-col>
+                        </ion-row>
+                        <div id="totalCensados">
+                        </div>
+                    </ion-grid>
+                </ion-list>
+
+        </page-total-censados>
 
 
     </ion-app>
