@@ -8,9 +8,10 @@ const AGREGARP = document.querySelector("#pantalla-persona-agregar");
 const LISTARP = document.querySelector("#pantalla-persona-listar");
 const DEPARTAMENTO = document.querySelector("#departamentos");
 const FECHANAC = document.querySelector("#fechaNac");
-
-
 const NAV = document.querySelector("ion-nav");
+
+
+let OCUPACION = "ocupaciones";
 
 
 

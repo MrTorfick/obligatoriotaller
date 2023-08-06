@@ -195,8 +195,11 @@
                 </ion-toolbar>
 
                 <ion-toolbar>
-                    <ion-searchbar search-icon="search-outline" placeholder="Buscar por ocupacion" id="buscarPersona">
-                    </ion-searchbar>
+                    <ion-item>
+                        <ion-select aria-label="Ocupacion" interface="action-sheet"
+                            placeholder="Buscar por ocupacion" id="buscarOcupaciones" cancel-text="Cerrar">
+                        </ion-select>
+                    </ion-item>
                 </ion-toolbar>
 
 
@@ -207,7 +210,7 @@
                         <ion-row>
                             <ion-col><strong>Nombre</strong></ion-col>
                             <ion-col><strong>Fecha de nacimiento</strong></ion-col>
-                            <ion-col><strong>Ocupacion</strong></ion-col>
+                            <ion-col><strong>ID Ocupacion</strong></ion-col>
                             <ion-col style="background-color:#FFC409;"><strong>Eliminar</strong></ion-col>
 
                             <!-- Crea una etiqueta html cualquiera, y aplicale un estilo css directamente escribiendolo dentro de la etiqueta html -->

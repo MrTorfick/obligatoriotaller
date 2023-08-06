@@ -1,7 +1,30 @@
 /* PENDIENTE: 
--Queda crear la funcion de EliminarPersona.
--Luego de hacer el EliminarPersonas, en la misma page de la tabla, hay que hacer un filtro que filtre por ocupacion.*/
-/* Hay que ver que hacer con al funcion de ObtenerOcupaciones */
+
+
+1)
+- Hay que ver el tema de las ocupaciones, capaz que conviene una funcion, que rellene las tablas dependiendo de la variable global. (Esto prioridad baja,
+  es para que en vez de que se vea la id de la ocupacion, se vea el nombre)
+
+
+
+2) Hacer lo que menos tiempo lleva para hacer el mismo dia(6/8/2023)
+-Empezar por los censados totales
+-Mapa
+
+
+3) Prioridad baja
+
+-Controlar que no se haga llamadas a la api, sin previamente haber controlado los datos
+-Optimizar el codigo completo 
+
+
+
+*/
+
+
+
+
+
 
 Inicio();
 
@@ -9,6 +32,9 @@ function Inicio() {
   Eventos();
   ArmarMenu();
 }
+
+
+
 
 /* ionChange */
 
@@ -35,7 +61,7 @@ function Eventos() {
   DEPARTAMENTO.addEventListener("ionChange", ObtenerCiudades);
   dqs("fechaNac").addEventListener("ionChange", verFecha);
   dqs("btnAgregarPersona").addEventListener("click", AgregarPersona);
-  dqs("buscarPersona").addEventListener("ionChange", prueba);
+  dqs("buscarOcupaciones").addEventListener("ionChange", GetPersonas);
 }
 
 function prueba() {
@@ -44,6 +70,7 @@ function prueba() {
 
 function verFecha(ev) {
   let nacimiento = new Date(ev.detail.value);
+  OCUPACION = "ocupaciones";
   ObtenerOcupaciones(EsMayor(nacimiento));
 }
 
@@ -197,9 +224,7 @@ function ObtenerCiudades(id) {
     .then(function (data) {
       if (data.codigo == 200) {
         for (let p of data.ciudades) {
-          dqs(
-            "ciudades"
-          ).innerHTML += `<ion-select-option value = "${p.id}"> ${p.nombre}</ion -select-option>`;
+          dqs("ciudades").innerHTML += `<ion-select-option value = "${p.id}"> ${p.nombre}</ion -select-option>`;
         }
       } else {
         Alertar("Error", "Advertencia", data.mensaje);
@@ -208,8 +233,8 @@ function ObtenerCiudades(id) {
     });
 }
 
-function ObtenerOcupaciones(mayor) {
-  dqs("ocupaciones").innerHTML = "";
+function ObtenerOcupaciones(mayor = true) {
+  dqs(OCUPACION).innerHTML = "";
   presentLoading();
   fetch(`${URLBASE}ocupaciones.php`, {
     method: "GET",
@@ -228,10 +253,10 @@ function ObtenerOcupaciones(mayor) {
       if ((data.codigo = 200)) {
         for (let p of data.ocupaciones) {
           if (mayor) {
-            dqs("ocupaciones").innerHTML += `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
+            dqs(OCUPACION).innerHTML += `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
           } else {
             if (p.id == 5) {
-              dqs("ocupaciones").innerHTML = `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
+              dqs(OCUPACION).innerHTML = `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
               break;
             }
           }
@@ -240,22 +265,20 @@ function ObtenerOcupaciones(mayor) {
         Alertar("Error", "Advertencia", data.mensaje);
       }
     });
-}
-
-
-function BuscarPersonaPorOcupacion() {
-
-
-
 
 }
+
+
+
 
 
 
 
 function GetPersonas() {
+  OCUPACION = "buscarOcupaciones";
+  ObtenerOcupaciones();
   dqs("listarPersonas").innerHTML = "";
-  localStorage.removeItem("personas");
+  let idOcupacion = dqs("buscarOcupaciones").value;
   presentLoading();
   fetch(`${URLBASE}personas.php?idUsuario=${localStorage.getItem("id")}`, {
     method: "GET",
@@ -270,22 +293,18 @@ function GetPersonas() {
     })
     .then(function (data) {
       console.log(data);
-      localStorage.setItem("personas", JSON.stringify(data.personas));
       loading.dismiss();
       if (data.personas.length > 0) {
-        for (let p of data.personas) {
-
-          dqs("listarPersonas").innerHTML += `
-          <ion-row>
-          <ion-col style="background-color:teal">${p.nombre}</ion-col>
-          <ion-col style="background-color:teal">${p.fechaNacimiento}</ion-col>
-          <ion-col style="background-color:teal">${p.ocupacion}</ion-col>
-          <ion-col style="background-color: transparent">
-          <ion-button color="warning" onclick="EliminarPersona(${p.id})">Eliminar</ion-button>
-          </ion-col>
-          <ion-row>
-          `;
+        if (idOcupacion != undefined) {
+          let personas = [];
+          for (let p of data.personas) {
+            if (p.ocupacion == idOcupacion) {
+              personas.push(p);
+            }
+          }
+          data.personas = personas;
         }
+        ListarPersonas(data);
       } else {
         Alertar("Aviso", "Advertencia", "No se encontraron personas registradas");
       }
@@ -293,6 +312,42 @@ function GetPersonas() {
     })
 
 }
+
+function ListarPersonas(data) {
+  dqs("listarPersonas").innerHTML = "";
+
+  if (data.personas.length >= 1) {
+
+    for (let p of data.personas) {
+
+      dqs("listarPersonas").innerHTML += `
+      <ion-row>
+      <ion-col style="background-color:teal">${p.nombre}</ion-col>
+      <ion-col style="background-color:teal">${p.fechaNacimiento}</ion-col>
+      <ion-col style="background-color:teal">${p.ocupacion}</ion-col>
+      <ion-col style="background-color: transparent">
+      <ion-button color="warning" onclick="EliminarPersona(${p.id})">Eliminar</ion-button>
+      </ion-col>
+      <ion-row>
+      `;
+    }
+  } else {
+    Alertar("Aviso", "Advertencia", "No se encontraron personas registradas que coincidan con la ocupacion seleccionada");
+  }
+
+
+}
+
+/* function ListarOcupaciones(data) {
+
+  for (let p of data.ocupaciones) {
+
+    dqs(OCUPACION).innerHTML += `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
+
+  }
+
+} */
+
 
 function EliminarPersona(id) {
   presentLoading();
