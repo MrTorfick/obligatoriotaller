@@ -10,14 +10,36 @@ function Inicio() {
   ArmarMenu();
 }
 
+/* ionChange */
+
+function ArmarMenu() {
+  let hayToken = localStorage.getItem("token");
+  let cadena = `<ion-item onclick="cerrarMenu()" href="/">Home</ion-item>`;
+  if (hayToken) {
+    cadena += `<ion-item onclick="cerrarMenu()" href="/personaAgregar">Agregar Personas</ion-item>
+        <ion-item onclick="Logout()">Logout</ion-item>
+        <ion-item onclick="cerrarMenu()" href="/personaListar">Personas censadas</ion-item>`;
+  } else {
+    cadena += ` <ion-item onclick="cerrarMenu()" href="/login">Login</ion-item>
+                <ion-item onclick="cerrarMenu()" href="/registro">Registrar</ion-item>
+                 `;
+  }
+
+  dqs("menu-opciones").innerHTML = cadena;
+}
+
 function Eventos() {
   ROUTER.addEventListener("ionRouteDidChange", Navegar); // ionRouteDidChange es un evento que se dispara cuando se cambia de ruta
   dqs("btnRegistrar").addEventListener("click", TomarDatosRegistro);
   dqs("btnLogin").addEventListener("click", TomarDatosLogin);
   DEPARTAMENTO.addEventListener("ionChange", ObtenerCiudades);
-  FECHANAC.addEventListener("ionChange", ObtenerCiudades);
   dqs("fechaNac").addEventListener("ionChange", verFecha);
   dqs("btnAgregarPersona").addEventListener("click", AgregarPersona);
+  dqs("buscarPersona").addEventListener("ionChange", prueba);
+}
+
+function prueba() {
+  alert("hola");
 }
 
 function verFecha(ev) {
@@ -59,21 +81,7 @@ function TomarDatosLogin() {
   }
 }
 
-function ArmarMenu() {
-  let hayToken = localStorage.getItem("token");
-  let cadena = `<ion-item onclick="cerrarMenu()" href="/">Home</ion-item>`;
-  if (hayToken) {
-    cadena += `<ion-item onclick="cerrarMenu()" href="/personaAgregar">Agregar Personas</ion-item>
-        <ion-item onclick="Logout()">Logout</ion-item>
-        <ion-item href="/personaListar">Personas censadas</ion-item>`;
-  } else {
-    cadena += ` <ion-item onclick="cerrarMenu()" href="/login">Login</ion-item>
-                <ion-item onclick="cerrarMenu()" href="/registro">Registrar</ion-item>
-                 `;
-  }
 
-  dqs("menu-opciones").innerHTML = cadena;
-}
 
 function Logout() {
   localStorage.clear(); // Borra todo lo que hay en el localstorage
@@ -103,6 +111,7 @@ function Navegar(evt) {
 }
 
 function AgregarPersona() {
+  presentLoading();
   let p = new Persona();
 
   p.idUsuario = localStorage.getItem("id");
@@ -126,6 +135,7 @@ function AgregarPersona() {
         return response.json();
       })
       .then(function (data) {
+        loading.dismiss();
         console.log(data);
         if (data.codigo == 200) {
           Alertar("Exito", "Aviso", data.mensaje);
@@ -139,61 +149,6 @@ function AgregarPersona() {
 
 }
 
-
-
-
-function GetPersonas() {
-
-  dqs("listarPersonas").innerHTML = "";
-  fetch(`${URLBASE}personas.php?idUsuario=${localStorage.getItem("id")}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: localStorage.getItem("token"),
-      iduser: localStorage.getItem("id"),
-    },
-  })
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      console.log(data);
-      if (data.personas.length > 0) {
-        for (let p of data.personas) {
-
-          dqs("listarPersonas").innerHTML += `
-          <ion-row>
-          <ion-col style="background-color:teal">${p.nombre}</ion-col>
-          <ion-col style="background-color:teal">${p.fechaNacimiento}</ion-col>
-          <ion-col style="background-color:teal">${p.ocupacion}</ion-col>
-          <ion-col style="background-color: transparent">
-          <ion-button color="warning" onclick="EliminarPersona(${p.id})">Eliminar</ion-button>
-          </ion-col>
-          <ion-row>
-          `;
-        }
-      }
-    })
-
-}
-
-
-
-function ObtenerOcupaciones(mayor) {
-  //TODO: Obtener las ocupaciones de la API 
-  fetch(`${URLBASE}ocupaciones.php`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: localStorage.getItem("token"),
-      iduser: localStorage.getItem("id"),
-    },
-  })
-    .then(function (response) {
-      return response.json();
-    })
-
-}
 
 function ListarDepartamentos() {
   presentLoading();
@@ -268,18 +223,15 @@ function ObtenerOcupaciones(mayor) {
       return response.json();
     })
     .then(function (data) {
+      loading.dismiss();
       console.log(data);
       if ((data.codigo = 200)) {
         for (let p of data.ocupaciones) {
           if (mayor) {
-            dqs(
-              "ocupaciones"
-            ).innerHTML += `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
+            dqs("ocupaciones").innerHTML += `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
           } else {
             if (p.id == 5) {
-              dqs(
-                "ocupaciones"
-              ).innerHTML = `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
+              dqs("ocupaciones").innerHTML = `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
               break;
             }
           }
@@ -289,6 +241,111 @@ function ObtenerOcupaciones(mayor) {
       }
     });
 }
+
+
+function BuscarPersonaPorOcupacion() {
+
+
+
+
+}
+
+
+
+
+function GetPersonas() {
+  dqs("listarPersonas").innerHTML = "";
+  localStorage.removeItem("personas");
+  presentLoading();
+  fetch(`${URLBASE}personas.php?idUsuario=${localStorage.getItem("id")}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: localStorage.getItem("token"),
+      iduser: localStorage.getItem("id"),
+    },
+  })
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log(data);
+      localStorage.setItem("personas", JSON.stringify(data.personas));
+      loading.dismiss();
+      if (data.personas.length > 0) {
+        for (let p of data.personas) {
+
+          dqs("listarPersonas").innerHTML += `
+          <ion-row>
+          <ion-col style="background-color:teal">${p.nombre}</ion-col>
+          <ion-col style="background-color:teal">${p.fechaNacimiento}</ion-col>
+          <ion-col style="background-color:teal">${p.ocupacion}</ion-col>
+          <ion-col style="background-color: transparent">
+          <ion-button color="warning" onclick="EliminarPersona(${p.id})">Eliminar</ion-button>
+          </ion-col>
+          <ion-row>
+          `;
+        }
+      } else {
+        Alertar("Aviso", "Advertencia", "No se encontraron personas registradas");
+      }
+
+    })
+
+}
+
+function EliminarPersona(id) {
+  presentLoading();
+  fetch(`${URLBASE}personas.php?idCenso=${id}`, {
+
+    method: "DELETE",
+
+    headers: {
+      "Content-Type": "application/json",
+      apikey: localStorage.getItem("token"),
+      iduser: localStorage.getItem("id"),
+    },
+
+  }).then(function (response) {
+    return response.json();
+
+  }).then(function (data) {
+    console.log(data);
+    loading.dismiss();
+    if (data.codigo == 200) {
+      Alertar("Ok", "Aviso", data.mensaje);
+    } else {
+      Alertar("Error", "Advertencia", data.mensaje);
+    }
+    GetPersonas();
+  })
+}
+
+function Registro(u) {
+  presentLoading();
+
+  fetch(`${URLBASE}usuarios.php`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(u),
+  })
+    .then(function (response) {
+      console.log(response);
+      return response.json();
+    })
+    .then(function (data) {
+      loading.dismiss();
+      if (data.codigo == 200) {
+        Alertar("Ok", "Aviso", "Registro correcto");
+      } else {
+        Alertar("Error", "Advertencia", data.mensaje);
+      }
+    });
+}
+
+
 
 function Login(u) {
   presentLoading();
@@ -337,29 +394,7 @@ function dqs(id) {
   return document.querySelector("#" + id);
 }
 
-function Registro(u) {
-  presentLoading();
 
-  fetch(`${URLBASE}usuarios.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(u),
-  })
-    .then(function (response) {
-      console.log(response);
-      return response.json();
-    })
-    .then(function (data) {
-      loading.dismiss();
-      if (data.codigo == 200) {
-        Alertar("Ok", "Aviso", "Registro correcto");
-      } else {
-        Alertar("Error", "Advertencia", data.mensaje);
-      }
-    });
-}
 
 function ValidarPersona(p) {
 
