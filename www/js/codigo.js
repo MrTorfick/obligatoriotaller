@@ -44,7 +44,8 @@ function ArmarMenu() {
   if (hayToken) {
     cadena += `<ion-item onclick="cerrarMenu()" href="/personaAgregar">Agregar Personas</ion-item>
         <ion-item onclick="Logout()">Logout</ion-item>
-        <ion-item onclick="cerrarMenu()" href="/personaListar">Personas censadas</ion-item>`;
+        <ion-item onclick="cerrarMenu()" href="/personaListar">Personas censadas</ion-item>
+        <ion-item onclick="cerrarMenu()" href="/totalCensados">Total censados</ion-item>`;
   } else {
     cadena += ` <ion-item onclick="cerrarMenu()" href="/login">Login</ion-item>
                 <ion-item onclick="cerrarMenu()" href="/registro">Registrar</ion-item>
@@ -133,7 +134,9 @@ function Navegar(evt) {
   } else if (RUTA == "/personaListar") {
     LISTARP.style.display = "block";
     GetPersonas();
-
+  } else if (RUTA == "/totalCensados") {
+    TOTALCENSADOS.style.display = "block";
+    CensadosTotales();
   }
 }
 
@@ -294,24 +297,87 @@ function GetPersonas() {
     .then(function (data) {
       console.log(data);
       loading.dismiss();
-      if (data.personas.length > 0) {
-        if (idOcupacion != undefined) {
-          let personas = [];
-          for (let p of data.personas) {
+      if (data.personas.length > 0 && data.codigo == 200) {
+        for (let p of data.personas) {
+          if (idOcupacion != undefined) {
+            let personas = [];
             if (p.ocupacion == idOcupacion) {
               personas.push(p);
             }
+            data.personas = personas;
+          } else {
+            if (data.personas.departamento == 3218) {
+              censadosMontevideo++;
+            }
           }
-          data.personas = personas;
         }
+
+        censadosTotalesPorUsuario = data.personas.length;
         ListarPersonas(data);
+
       } else {
-        Alertar("Aviso", "Advertencia", "No se encontraron personas registradas");
+        let mensajeError;
+        if (data.codigo !== 200) {
+          mensajeError = data.mensaje;
+        } else {
+          mensajeError = "No se encontraron personas registradas";
+        }
+
+        Alertar("Aviso", "Advertencia", mensajeError);
       }
 
     })
 
 }
+
+function GetTotalCensados() {
+
+  fetch(`${URLBASE}totalCensados.php`, {
+
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: localStorage.getItem("token"),
+      iduser: localStorage.getItem("id"),
+    },
+  })
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      loading.dismiss();
+      console.log(data);
+      if (data.codigo == 200) {
+        censadosTotales = data.total;
+      } else {
+        Alertar("Error", "Advertencia", data.mensaje);
+      }
+    });
+}
+
+
+
+
+function CensadosTotales() {
+  presentLoading();
+  dqs("totalCensados").innerHTML = "";
+  GetPersonas();
+  GetTotalCensados();
+  setTimeout(function () { ListarCensadosTotales() }, 3500);
+
+}
+
+function ListarCensadosTotales() {
+  dqs("totalCensados").innerHTML = `
+  <ion-row>
+  <ion-col style="background-color:teal">${censadosTotalesPorUsuario}</ion-col>
+  <ion-col style="background-color:teal">${censadosMontevideo}</ion-col>
+  <ion-col style="background-color:teal">${censadosTotales}</ion-col>
+  <ion-row>
+  `;
+}
+
+
 
 function ListarPersonas(data) {
   dqs("listarPersonas").innerHTML = "";
@@ -339,13 +405,13 @@ function ListarPersonas(data) {
 }
 
 /* function ListarOcupaciones(data) {
-
+ 
   for (let p of data.ocupaciones) {
-
+ 
     dqs(OCUPACION).innerHTML += `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
-
+ 
   }
-
+ 
 } */
 
 
@@ -443,6 +509,7 @@ function OcultarPantallas() {
   REGISTRO.style.display = "none";
   AGREGARP.style.display = "none";
   LISTARP.style.display = "none";
+  TOTALCENSADOS.style.display = "none";
 }
 
 function dqs(id) {

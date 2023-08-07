@@ -32,6 +32,7 @@
             <ion-route url="/registro" component="page-registro"></ion-route>
             <ion-route url="/personaAgregar" component="page-persona-agregar"></ion-route>
             <ion-route url="/personaListar" component="pantalla-persona-listar"></ion-route>
+            <ion-route url="/totalCensados" component="pantalla-total-censados"></ion-route>
 
         </ion-router>
 
@@ -224,7 +225,7 @@
         </page-persona-listar>
 
 
-        <page-total-censados>
+        <page-total-censados class="ion-page" id="pantalla-total-censados">
 
             <ion-header>
                 <ion-toolbar>
@@ -239,9 +240,9 @@
                 <ion-list>
                     <ion-grid>
                         <ion-row>
-                            <ion-col><strong id="colUser">Censados por</strong></ion-col>
-                            <ion-col><strong>Total censados en Montevideo</strong></ion-col>
-                            <ion-col><strong>Total censados resto del pais</strong></ion-col>
+                            <ion-col><strong>Censados por el usuario</strong></ion-col>
+                            <ion-col><strong>Total censados en Montevideo por el usuario</strong></ion-col>
+                            <ion-col><strong>Total censados resto del pais por todos los censistas</strong></ion-col>
                         </ion-row>
                         <div id="totalCensados">
                         </div>

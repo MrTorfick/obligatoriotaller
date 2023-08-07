@@ -9,10 +9,13 @@ const LISTARP = document.querySelector("#pantalla-persona-listar");
 const DEPARTAMENTO = document.querySelector("#departamentos");
 const FECHANAC = document.querySelector("#fechaNac");
 const NAV = document.querySelector("ion-nav");
+const TOTALCENSADOS = document.querySelector("#pantalla-total-censados");
 
 
 let OCUPACION = "ocupaciones";
-
+let censadosTotalesPorUsuario = 0;
+let censadosTotales = 0;
+let censadosMontevideo = 0;
 
 
 class Usuario {
