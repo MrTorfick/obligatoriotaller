@@ -34,10 +34,6 @@ function Inicio() {
 }
 
 
-
-
-/* ionChange */
-
 function ArmarMenu() {
   let hayToken = localStorage.getItem("token");
   let cadena = `<ion-item onclick="cerrarMenu()" href="/">Home</ion-item>`;
@@ -45,7 +41,8 @@ function ArmarMenu() {
     cadena += `<ion-item onclick="cerrarMenu()" href="/personaAgregar">Agregar Personas</ion-item>
         <ion-item onclick="Logout()">Logout</ion-item>
         <ion-item onclick="cerrarMenu()" href="/personaListar">Personas censadas</ion-item>
-        <ion-item onclick="cerrarMenu()" href="/totalCensados">Total censados</ion-item>`;
+        <ion-item onclick="cerrarMenu()" href="/totalCensados">Total censados</ion-item>
+        <ion-item onclick="cerrarMenu()" href="/mapa">Mapa</ion-item>`;
   } else {
     cadena += ` <ion-item onclick="cerrarMenu()" href="/login">Login</ion-item>
                 <ion-item onclick="cerrarMenu()" href="/registro">Registrar</ion-item>
@@ -63,11 +60,9 @@ function Eventos() {
   dqs("fechaNac").addEventListener("ionChange", verFecha);
   dqs("btnAgregarPersona").addEventListener("click", AgregarPersona);
   dqs("buscarOcupaciones").addEventListener("ionChange", GetPersonas);
+  dqs("btnBuscar").addEventListener("click", AsignarRadio);
 }
 
-function prueba() {
-  alert("hola");
-}
 
 function verFecha(ev) {
   let nacimiento = new Date(ev.detail.value);
@@ -137,6 +132,9 @@ function Navegar(evt) {
   } else if (RUTA == "/totalCensados") {
     TOTALCENSADOS.style.display = "block";
     CensadosTotales();
+  } else if (RUTA == "/mapa") {
+    MAPA.style.display = "block";
+    getGeoLocation();
   }
 }
 
@@ -194,6 +192,7 @@ function ListarDepartamentos() {
       return response.json();
     })
     .then(function (data) {
+      loading.dismiss();
       if (data.codigo == 200) {
         for (let p of data.departamentos) {
           console.log(data);
@@ -205,15 +204,19 @@ function ListarDepartamentos() {
         console.log(data);
         Alertar("Error", "Advertencia", data.mensaje);
       }
-      loading.dismiss();
+
     });
 }
 
-function ObtenerCiudades(id) {
+/* function ObtenerCiudades(id) {
+
+  if (id.detail) { //Verificamos si el id tiene un detail, si lo tiene es porque se ejecuto el evento
+    id = id.detail.value;
+  }
   dqs("ciudades").innerHTML = "";
   presentLoading();
 
-  fetch(`${URLBASE}ciudades.php?idDepartamento=${id.detail.value}`, {
+  fetch(`${URLBASE}ciudades.php?idDepartamento=${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -225,6 +228,9 @@ function ObtenerCiudades(id) {
       return response.json();
     })
     .then(function (data) {
+      console.log(data);
+      localStorage.setItem("ciudades", JSON.stringify(data.ciudades));
+      loading.dismiss();
       if (data.codigo == 200) {
         for (let p of data.ciudades) {
           dqs("ciudades").innerHTML += `<ion-select-option value = "${p.id}"> ${p.nombre}</ion -select-option>`;
@@ -232,8 +238,42 @@ function ObtenerCiudades(id) {
       } else {
         Alertar("Error", "Advertencia", data.mensaje);
       }
-      loading.dismiss();
+
     });
+} */
+
+async function ObtenerCiudades(id) {
+  try {
+    if (id.detail) { //Verificamos si el id tiene un detail, si lo tiene es porque se ejecuto el evento
+      id = id.detail.value;
+    }
+    dqs("ciudades").innerHTML = "";
+    presentLoading();
+
+    const response = await fetch(`${URLBASE}ciudades.php?idDepartamento=${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: localStorage.getItem("token"),
+        iduser: localStorage.getItem("id"),
+      },
+    });
+
+    const data = await response.json();
+    console.log(data);
+    loading.dismiss();
+
+    if (data.codigo == 200) {
+      ciudadesPersona.push(data.ciudades)
+      for (let p of data.ciudades) {
+        dqs("ciudades").innerHTML += `<ion-select-option value="${p.id}">${p.nombre}</ion-select-option>`;
+      }
+    } else {
+      Alertar("Error", "Advertencia", data.mensaje);
+    }
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function ObtenerOcupaciones(mayor = true) {
@@ -274,9 +314,6 @@ function ObtenerOcupaciones(mayor = true) {
 
 
 
-
-
-
 function GetPersonas() {
   OCUPACION = "buscarOcupaciones";
   ObtenerOcupaciones();
@@ -297,6 +334,7 @@ function GetPersonas() {
     .then(function (data) {
       console.log(data);
       loading.dismiss();
+      localStorage.setItem("personas", JSON.stringify(data.personas));
       if (data.personas.length > 0 && data.codigo == 200) {
         for (let p of data.personas) {
           if (idOcupacion != undefined) {
@@ -359,12 +397,10 @@ function GetTotalCensados() {
 
 
 function CensadosTotales() {
-  presentLoading();
   dqs("totalCensados").innerHTML = "";
   GetPersonas();
   GetTotalCensados();
-  setTimeout(function () { ListarCensadosTotales() }, 3500);
-
+  setTimeout(function () { ListarCensadosTotales() }, 2650);
 }
 
 function ListarCensadosTotales() {
@@ -413,6 +449,101 @@ function ListarPersonas(data) {
   }
  
 } */
+
+function getGeoLocation() {
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(mostrarUbicacion);
+  }
+}
+
+
+function mostrarUbicacion(position) {
+  MiLatitud = position.coords.latitude;
+  MiLongitud = position.coords.longitude;
+  console.log(MiLatitud);
+  console.log(MiLongitud);
+
+
+  setTimeout(function () { CrearMapa() }, 2000);
+}
+
+function AsignarRadio() {
+  radioM = dqs("radioMapa").value * 1000;
+  if (radioM >= 1) {
+    CrearMapa();
+  } else {
+    Alertar("Aviso", "Advertencia", "Radio no valido");
+  }
+
+}
+
+
+
+async function CrearMapa() {
+  if (map != null) {
+    map.remove();
+  }
+
+  map = L.map('map').setView([MiLatitud, MiLongitud], 16);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  let marker1 = L.marker([MiLatitud, MiLongitud]).addTo(map);
+  marker1.bindPopup("<strong>Mi ubicacion</strong><br><span>---</span>");
+
+  if (radioM != null) {
+    presentLoading();
+    ciudadesPersona = [];
+    var circle = L.circle([MiLatitud, MiLongitud], {
+      color: 'red',
+      fillColor: '#f03',
+      fillOpacity: 0.2,
+      radius: radioM
+    }).addTo(map);
+
+    let personasCensadas = localStorage.getItem("personas");
+    personasCensadas = JSON.parse(personasCensadas);
+    console.log(personasCensadas);
+    await ObtenerCiudadesPersonas(personasCensadas);
+
+    ciudadesPersona = JSON.parse(ciudadesPersona);
+
+    for (let h of personasCensadas) {
+      for (let i of ciudadesPersona) {
+        if (i.id == h.ciudad) {
+
+          let desde = marker1.getLatLng();
+          let marker2 = L.marker([h.latitud, h.longitud]);
+          let hasta = marker2.getLatLng();
+
+          let distancia = (map.distance(desde, hasta)).toFixed(2);
+
+          if (distancia <= radioM) {
+            marker2.addTo(map);
+            marker2.bindPopup(`<strong>${h.nombre}</strong><br><span>${distancia} metros</span>`);
+          }
+        }
+
+
+      }
+
+    }
+    loading.dismiss();
+  }
+}
+
+async function ObtenerCiudadesPersonas(personasCensadas) {
+  for (let c of personasCensadas) {
+    await ObtenerCiudades(c.departamento);
+  }
+  loading.dismiss();
+}
+
+
+
 
 
 function EliminarPersona(id) {
@@ -482,14 +613,13 @@ function Login(u) {
       return response.json();
     })
     .then(function (data) {
+      loading.dismiss();
       if (data.codigo == 200) {
         localStorage.setItem("token", data.apiKey);
         localStorage.setItem("id", data.id);
         NAV.push("page-home");
         ArmarMenu();
-        loading.dismiss();
       } else {
-        loading.dismiss();
         Alertar("Error", "", data.mensaje);
       }
       console.log(data);
@@ -510,6 +640,7 @@ function OcultarPantallas() {
   AGREGARP.style.display = "none";
   LISTARP.style.display = "none";
   TOTALCENSADOS.style.display = "none";
+  MAPA.style.display = "none";
 }
 
 function dqs(id) {
