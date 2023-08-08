@@ -8,6 +8,10 @@
     <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 
     <style>
@@ -16,6 +20,10 @@
             border: solid 1px #fff;
             color: #fff;
             text-align: center;
+        }
+
+        #map {
+            height: 680px;
         }
     </style>
 
@@ -33,6 +41,7 @@
             <ion-route url="/personaAgregar" component="page-persona-agregar"></ion-route>
             <ion-route url="/personaListar" component="pantalla-persona-listar"></ion-route>
             <ion-route url="/totalCensados" component="pantalla-total-censados"></ion-route>
+            <ion-route url="/mapa" component="pantalla-mapa"></ion-route>
 
         </ion-router>
 
@@ -71,10 +80,6 @@
             </ion-header>
             <ion-content>
                 Pantalla de home
-
-
-
-
             </ion-content>
         </page-home>
 
@@ -242,7 +247,8 @@
                         <ion-row>
                             <ion-col><strong>Censados por el usuario</strong></ion-col>
                             <ion-col><strong>Total censados en Montevideo por el usuario</strong></ion-col>
-                            <ion-col><strong>Total censados resto del pais por todos los censistas</strong></ion-col>
+                            <ion-col><strong>Total censados en el resto del pais por todos los
+                                    censistas</strong></ion-col>
                         </ion-row>
                         <div id="totalCensados">
                         </div>
@@ -250,6 +256,28 @@
                 </ion-list>
 
         </page-total-censados>
+
+
+        <page-mapa class="ion-page" id="pantalla-mapa">
+
+            <ion-header>
+                <ion-toolbar>
+                    <ion-buttons slot="start">
+                        <ion-menu-button></ion-menu-button>
+                    </ion-buttons>
+                    <iont-title>Mapa</iont-title>
+                </ion-toolbar>
+            </ion-header>
+
+            <ion-item>
+                <ion-input label="Radio en KM:" id="radioMapa" labelPlacement="floating" type="number"></ion-input>
+            </ion-item>
+
+            <ion-button expand="full" id="btnBuscar">Buscar</ion-button>
+
+            <div id="map"></div>
+
+        </page-mapa>
 
 
     </ion-app>

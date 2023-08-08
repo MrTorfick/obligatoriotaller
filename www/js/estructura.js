@@ -10,12 +10,19 @@ const DEPARTAMENTO = document.querySelector("#departamentos");
 const FECHANAC = document.querySelector("#fechaNac");
 const NAV = document.querySelector("ion-nav");
 const TOTALCENSADOS = document.querySelector("#pantalla-total-censados");
+const MAPA = document.querySelector("#pantalla-mapa");
+
 
 
 let OCUPACION = "ocupaciones";
 let censadosTotalesPorUsuario = 0;
 let censadosTotales = 0;
 let censadosMontevideo = 0;
+let MiLatitud;
+let MiLongitud;
+let map = null;
+let radioM = null;
+let ciudadesPersona = [];
 
 
 class Usuario {
