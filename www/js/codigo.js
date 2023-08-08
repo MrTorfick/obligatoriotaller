@@ -253,7 +253,7 @@ function ObtenerOcupaciones(mayor = true) {
 
 
 
-function GetPersonas() {
+async function GetPersonas() {
   let filtro = false;
   OCUPACION = "buscarOcupaciones";
   ObtenerOcupaciones();
@@ -261,7 +261,7 @@ function GetPersonas() {
   let idOcupacion = dqs("buscarOcupaciones").value;
   dqs("buscarOcupaciones").value = null;
   presentLoading();
-  fetch(`${URLBASE}personas.php?idUsuario=${localStorage.getItem("id")}`, {
+  const response = await fetch(`${URLBASE}personas.php?idUsuario=${localStorage.getItem("id")}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -269,47 +269,44 @@ function GetPersonas() {
       iduser: localStorage.getItem("id"),
     },
   })
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      console.log(data);
-      censadosTotalesPorUsuario = data.personas.length;
-      loading.dismiss();
-      localStorage.setItem("personas", JSON.stringify(data.personas));
-      if (data.personas.length > 0 && data.codigo == 200) {
-        let personas = [];
-        for (let p of data.personas) {
-          if (idOcupacion != undefined || idOcupacion != null) {
-            filtro = true;
-            if (p.ocupacion == idOcupacion) {
-              personas.push(p);
-            }
-          } else {
-            if (p.departamento == 3218) {
-              censadosMontevideo++;
-            }
-          }
+  const data = await response.json();
+  loading.dismiss();
+  console.log(data);
+  censadosTotalesPorUsuario = data.personas.length;
+  loading.dismiss();
+  localStorage.setItem("personas", JSON.stringify(data.personas));
+  if (data.personas.length > 0 && data.codigo == 200) {
+    let personas = [];
+    for (let p of data.personas) {
+      if (idOcupacion != undefined || idOcupacion != null) {
+        filtro = true;
+        if (p.ocupacion == idOcupacion) {
+          personas.push(p);
         }
-        if (filtro) {
-          data.personas = personas;
-          ListarPersonas(data);
-        } else {
-          ListarPersonas(data);
-        }
-
       } else {
-        let mensajeError;
-        if (data.codigo !== 200) {
-          mensajeError = data.mensaje;
-        } else {
-          mensajeError = "No se encontraron personas registradas";
+        if (p.departamento == 3218) {
+          censadosMontevideo++;
         }
-
-        Alertar("Aviso", "Advertencia", mensajeError);
       }
+    }
+    if (filtro) {
+      data.personas = personas;
+      ListarPersonas(data);
+    } else {
+      ListarPersonas(data);
+    }
 
-    })
+  } else {
+    let mensajeError;
+    if (data.codigo !== 200) {
+      mensajeError = data.mensaje;
+    } else {
+      mensajeError = "No se encontraron personas registradas";
+    }
+
+    Alertar("Aviso", "Advertencia", mensajeError);
+  }
+
 
 }
 
@@ -434,6 +431,7 @@ async function CrearMapa() {
 
   if (radioM != null) {
     presentLoading();
+    await GetPersonas();
     ciudadesPersona = [];
     var circle = L.circle([MiLatitud, MiLongitud], {
       color: 'red',
