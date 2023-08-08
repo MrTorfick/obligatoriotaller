@@ -509,27 +509,23 @@ async function CrearMapa() {
     console.log(personasCensadas);
     await ObtenerCiudadesPersonas(personasCensadas);
 
-    ciudadesPersona = JSON.parse(ciudadesPersona);
-
     for (let h of personasCensadas) {
-      for (let i of ciudadesPersona) {
-        if (i.id == h.ciudad) {
-
-          let desde = marker1.getLatLng();
-          let marker2 = L.marker([h.latitud, h.longitud]);
-          let hasta = marker2.getLatLng();
-
-          let distancia = (map.distance(desde, hasta)).toFixed(2);
-
-          if (distancia <= radioM) {
-            marker2.addTo(map);
-            marker2.bindPopup(`<strong>${h.nombre}</strong><br><span>${distancia} metros</span>`);
+      for (let i = 0; i < ciudadesPersona.length; i++) {
+        const arraySecundario = ciudadesPersona[i];
+        for (let j = 0; j < arraySecundario.length; j++) {
+          const elemento = arraySecundario[j];
+          if (elemento.id == h.ciudad) {
+            let desde = marker1.getLatLng();
+            let marker2 = L.marker([elemento.latitud, elemento.longitud]);
+            let hasta = marker2.getLatLng();
+            let distancia = (map.distance(desde, hasta)).toFixed(2);
+            if (distancia <= radioM) {
+              marker2.addTo(map);
+              marker2.bindPopup(`<br><span>${(distancia / 1000).toFixed(2)} Kilometros</span>`);
+            }
           }
         }
-
-
       }
-
     }
     loading.dismiss();
   }
