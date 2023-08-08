@@ -315,10 +315,12 @@ function ObtenerOcupaciones(mayor = true) {
 
 
 function GetPersonas() {
+  let filtro = false;
   OCUPACION = "buscarOcupaciones";
   ObtenerOcupaciones();
   dqs("listarPersonas").innerHTML = "";
   let idOcupacion = dqs("buscarOcupaciones").value;
+  dqs("buscarOcupaciones").value = null;
   presentLoading();
   fetch(`${URLBASE}personas.php?idUsuario=${localStorage.getItem("id")}`, {
     method: "GET",
@@ -333,25 +335,29 @@ function GetPersonas() {
     })
     .then(function (data) {
       console.log(data);
+      censadosTotalesPorUsuario = data.personas.length;
       loading.dismiss();
       localStorage.setItem("personas", JSON.stringify(data.personas));
       if (data.personas.length > 0 && data.codigo == 200) {
+        let personas = [];
         for (let p of data.personas) {
-          if (idOcupacion != undefined) {
-            let personas = [];
+          if (idOcupacion != undefined || idOcupacion != null) {
+            filtro = true;
             if (p.ocupacion == idOcupacion) {
               personas.push(p);
             }
-            data.personas = personas;
           } else {
-            if (data.personas.departamento == 3218) {
+            if (p.departamento == 3218) {
               censadosMontevideo++;
             }
           }
         }
-
-        censadosTotalesPorUsuario = data.personas.length;
-        ListarPersonas(data);
+        if (filtro) {
+          data.personas = personas;
+          ListarPersonas(data);
+        } else {
+          ListarPersonas(data);
+        }
 
       } else {
         let mensajeError;
@@ -411,6 +417,7 @@ function ListarCensadosTotales() {
   <ion-col style="background-color:teal">${censadosTotales}</ion-col>
   <ion-row>
   `;
+  console.log(censadosMontevideo);
 }
 
 
@@ -587,6 +594,7 @@ function Registro(u) {
       loading.dismiss();
       if (data.codigo == 200) {
         Alertar("Ok", "Aviso", "Registro correcto");
+        Login(u);
       } else {
         Alertar("Error", "Advertencia", data.mensaje);
       }
