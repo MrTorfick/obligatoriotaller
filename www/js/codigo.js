@@ -1,31 +1,3 @@
-/* PENDIENTE: 
-
-
-1)
-- Hay que ver el tema de las ocupaciones, capaz que conviene una funcion, que rellene las tablas dependiendo de la variable global. (Esto prioridad baja,
-  es para que en vez de que se vea la id de la ocupacion, se vea el nombre)
-
-
-
-2) Hacer lo que menos tiempo lleva para hacer el mismo dia(6/8/2023)
--Empezar por los censados totales
--Mapa
-
-
-3) Prioridad baja
-
--Controlar que no se haga llamadas a la api, sin previamente haber controlado los datos
--Optimizar el codigo completo 
-
-
-
-*/
-
-
-
-
-
-
 Inicio();
 
 function Inicio() {
@@ -167,7 +139,6 @@ function AgregarPersona() {
         console.log(data);
         if (data.codigo == 200) {
           Alertar("Exito", "Aviso", data.mensaje);
-          /* Habria que limpiar los elementos del HTML */
         } else {
           Alertar("Error", "Advertencia", data.mensaje);
         }
@@ -208,39 +179,7 @@ function ListarDepartamentos() {
     });
 }
 
-/* function ObtenerCiudades(id) {
 
-  if (id.detail) { //Verificamos si el id tiene un detail, si lo tiene es porque se ejecuto el evento
-    id = id.detail.value;
-  }
-  dqs("ciudades").innerHTML = "";
-  presentLoading();
-
-  fetch(`${URLBASE}ciudades.php?idDepartamento=${id}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: localStorage.getItem("token"),
-      iduser: localStorage.getItem("id"),
-    },
-  })
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      console.log(data);
-      localStorage.setItem("ciudades", JSON.stringify(data.ciudades));
-      loading.dismiss();
-      if (data.codigo == 200) {
-        for (let p of data.ciudades) {
-          dqs("ciudades").innerHTML += `<ion-select-option value = "${p.id}"> ${p.nombre}</ion -select-option>`;
-        }
-      } else {
-        Alertar("Error", "Advertencia", data.mensaje);
-      }
-
-    });
-} */
 
 async function ObtenerCiudades(id) {
   try {
@@ -447,15 +386,7 @@ function ListarPersonas(data) {
 
 }
 
-/* function ListarOcupaciones(data) {
- 
-  for (let p of data.ocupaciones) {
- 
-    dqs(OCUPACION).innerHTML += `<ion-select-option value = "${p.id}"> ${p.ocupacion}</ion-select-option>`;
- 
-  }
- 
-} */
+
 
 function getGeoLocation() {
 
